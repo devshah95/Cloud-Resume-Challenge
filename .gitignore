@@ -1,14 +1,14 @@
 # Ignore .terraform directories
-resourceCreation/.terraform/
+create_resources/.terraform/
 
 # Other Terraform-related files to ignore
-resourceCreation/*.tfstate
-resourceCreation/*.tfstate.*
-resourceCreation/crash.log
-resourceCreation/*.tfvars
-resourceCreation/*.tfvars.json
-resourceCreation/override.tf
-resourceCreation/override.tf.json
-resourceCreation/*_override.tf
-resourceCreation/*_override.tf.json
-resourceCreation/*.tfplan
+create_resources/*.tfstate
+create_resources/*.tfstate.*
+create_resources/crash.log
+create_resources/*.tfvars
+create_resources/*.tfvars.json
+create_resources/override.tf
+create_resources/override.tf.json
+create_resources/*_override.tf
+create_resources/*_override.tf.json
+create_resources/*.tfplan
