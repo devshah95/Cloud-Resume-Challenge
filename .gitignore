@@ -1,5 +1,5 @@
 # Ignore .terraform directories
-create_resources/.terraform/
+create_resources/.terraform/*
 
 # Other Terraform-related files to ignore
 create_resources/*.tfstate
