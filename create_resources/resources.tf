@@ -3,9 +3,13 @@ provider "aws" {
     region = "us-east-1"
 }
 
-# resource "aws_s3_bucket" "frontend-bucket" {
-#   bucket = "cloudresumechallenge-devarshtest"
-# }
+resource "aws_s3_bucket" "frontend-bucket" {
+  bucket = "cloudresumechallenge-devarshtest"
+}
+
+locals {
+    s3_bucket_endpoint = "https://${var.bucket_name}.s3.${var.region}.amazonaws.com"
+}
 
 # resource "aws_dynamodb_table" "WebsiteVisits" {
 #   name           = "WebsiteVisits"
