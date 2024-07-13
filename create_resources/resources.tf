@@ -36,6 +36,10 @@ resource "aws_s3_bucket_website_configuration" "frontend-bucket-website" {
   }
 }
 
+resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
+  comment = "Access identity for S3 bucket"
+}
+
 resource "aws_s3_bucket_policy" "frontend-bucket-policy" {
   bucket = aws_s3_bucket.frontend-bucket.id
 
@@ -74,6 +78,7 @@ resource "aws_s3_object" "index_html" {
   bucket = aws_s3_bucket.frontend-bucket.bucket
   key    = "index.html"
   source = local_file.index_html.filename
+  content_type = "text/html"
 }
 
 locals {
@@ -122,10 +127,6 @@ locals {
   s3_origin_id = "S3-frontend-origin"
 }
 
-resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-  comment = "Access identity for S3 bucket"
-}
-
 resource "aws_cloudfront_distribution" "frontend_distribution" {
   depends_on = [time_sleep.wait_for_validation]
 
@@ -145,7 +146,7 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
   aliases = [var.domain_name]
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = local.s3_origin_id
 
