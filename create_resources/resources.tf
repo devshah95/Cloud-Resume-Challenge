@@ -226,19 +226,20 @@ resource "null_resource" "insert_data" {
 }
 
 data "archive_file" "lambda_zip" {
-  type = "zip"
+  type        = "zip"
   source_file = "${path.module}/increment.py"
   output_path = "${path.module}/increment.zip"
 }
 
 resource "aws_lambda_function" "increment_counter" {
-  filename = data.archive_file.lambda_zip.output_path
-  function_name = "IncrementCounter"
-  role = "arn:aws:iam::891376956407:role/CloudResumeRole"
-  handler = "increment.lamdba_handler"
-  runtime = "python3.12"
+  filename         = data.archive_file.lambda_zip.output_path
+  function_name    = "IncrementCounter"
+  role             = "arn:aws:iam::891376956407:role/CloudResumeRole"
+  handler          = "increment.lambda_handler"
+  runtime          = "python3.12"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 }
+
 
 resource "aws_api_gateway_rest_api" "visitor_counter_api" {
   name        = "VisitorCounterAPI"
@@ -264,7 +265,7 @@ resource "aws_api_gateway_integration" "post_counter_lambda" {
   http_method             = aws_api_gateway_method.post_counter.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.increment_counter.invoke_arn
+  uri                     = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${aws_lambda_function.increment_counter.arn}/invocations"
 }
 
 resource "aws_lambda_permission" "api_gateway_lambda" {
