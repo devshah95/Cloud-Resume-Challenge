@@ -205,22 +205,82 @@ output "cloudfront_distribution_domain_name" {
   value = aws_cloudfront_distribution.frontend_distribution.domain_name
 }
 
-# resource "aws_dynamodb_table" "WebsiteVisits" {
-#   name           = "WebsiteVisits"
-#   billing_mode   = "PROVISIONED"
-#   read_capacity  = 5
-#   write_capacity = 5
-#   hash_key       = "CounterID"
+resource "aws_dynamodb_table" "WebsiteVisits" {
+  name           = "WebsiteVisits"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key       = "CounterID"
 
-#   attribute {
-#     name = "CounterID"
-#     type = "S"
-#   }
-# }
+  attribute {
+    name = "CounterID"
+    type = "S"
+  }
+}
 
-# resource "null_resource" "insert_data" {
-#   provisioner "local-exec" {
-#     command = "AWS_PROFILE=CloudResumeRole aws dynamodb put-item --region us-east-1 --table-name ${aws_dynamodb_table.WebsiteVisits.name} --item '{\"CounterID\": {\"S\": \"visitor_count\"}, \"count\": {\"N\": \"0\"}}'"
-#   }
-#   depends_on = [aws_dynamodb_table.WebsiteVisits]
-# }
+resource "null_resource" "insert_data" {
+  provisioner "local-exec" {
+    command = "AWS_PROFILE=CloudResumeRole aws dynamodb put-item --region us-east-1 --table-name ${aws_dynamodb_table.WebsiteVisits.name} --item '{\"CounterID\": {\"S\": \"visitor_count\"}, \"count\": {\"N\": \"0\"}}'"
+  }
+  depends_on = [aws_dynamodb_table.WebsiteVisits]
+}
+
+data "archive_file" "lambda_zip" {
+  type = "zip"
+  source_file = "${path.module}/increment.py"
+  output_path = "${path.module}/increment.zip"
+}
+
+resource "aws_lambda_function" "increment_counter" {
+  filename = data.archive_file.lambda_zip.output_path
+  function_name = "IncrementCounter"
+  role = "arn:aws:iam::891376956407:role/CloudResumeRole"
+  handler = "increment.lamdba_handler"
+  runtime = "python3.12"
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+}
+
+resource "aws_api_gateway_rest_api" "visitor_counter_api" {
+  name        = "VisitorCounterAPI"
+  description = "API for incrementing visitor counter"
+}
+
+resource "aws_api_gateway_resource" "counter" {
+  rest_api_id = aws_api_gateway_rest_api.visitor_counter_api.id
+  parent_id   = aws_api_gateway_rest_api.visitor_counter_api.root_resource_id
+  path_part   = "counter"
+}
+
+resource "aws_api_gateway_method" "post_counter" {
+  rest_api_id   = aws_api_gateway_rest_api.visitor_counter_api.id
+  resource_id   = aws_api_gateway_resource.counter.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "post_counter_lambda" {
+  rest_api_id             = aws_api_gateway_rest_api.visitor_counter_api.id
+  resource_id             = aws_api_gateway_resource.counter.id
+  http_method             = aws_api_gateway_method.post_counter.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.increment_counter.invoke_arn
+}
+
+resource "aws_lambda_permission" "api_gateway_lambda" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.increment_counter.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.visitor_counter_api.execution_arn}/*/*"
+}
+
+resource "aws_api_gateway_deployment" "visitor_counter_api_deployment" {
+  depends_on = [aws_api_gateway_integration.post_counter_lambda]
+  rest_api_id = aws_api_gateway_rest_api.visitor_counter_api.id
+  stage_name  = "prod"
+}
+
+output "api_url" {
+  value = "${aws_api_gateway_deployment.visitor_counter_api_deployment.invoke_url}/counter"
+}
