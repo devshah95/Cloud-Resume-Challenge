@@ -64,10 +64,10 @@ resource "local_file" "index_html" {
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Welcome to CloudResume</title>
+        <title>Temporary</title>
     </head>
     <body>
-        <h1>Welcome to CloudResume</h1>
+        <h1>Temporary Resume Page</h1>
         <p>This is a simple static website hosted on Amazon S3.</p>
     </body>
     </html>
