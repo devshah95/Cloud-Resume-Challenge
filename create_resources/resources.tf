@@ -82,8 +82,9 @@ resource "aws_s3_object" "index_html" {
 }
 
 locals {
-  s3_bucket_endpoint = "https://${aws_s3_bucket.frontend-bucket.bucket_regional_domain_name}"
+  s3_bucket_website_endpoint = "${aws_s3_bucket.frontend-bucket.bucket}.s3-website-${var.region}.amazonaws.com" 
 }
+
 
 resource "aws_acm_certificate" "cert" {
   domain_name       = var.domain_name
@@ -127,13 +128,17 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
   depends_on = [time_sleep.wait_for_validation]
 
   origin {
-    domain_name = aws_s3_bucket.frontend-bucket.bucket_regional_domain_name
-    origin_id   = "S3-frontend-origin"
+  domain_name = local.s3_bucket_website_endpoint  
+  origin_id   = "S3-frontend-origin"
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
-    }
+  custom_origin_config {  
+    http_port              = 80
+    https_port             = 443
+    origin_protocol_policy = "http-only"
+    origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
   }
+}
+
 
   enabled             = true
   is_ipv6_enabled     = true
