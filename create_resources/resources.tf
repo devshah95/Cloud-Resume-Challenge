@@ -44,19 +44,20 @@ resource "aws_s3_bucket_policy" "frontend-bucket-policy" {
   bucket = aws_s3_bucket.frontend-bucket.id
 
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
+    Id = "Policy1720917837904",
     Statement = [
       {
-        Effect = "Allow"
-        Principal = "*"
-        Action = "s3:GetObject"
+        Sid = "Stmt1720917835167",
+        Effect = "Allow",
+        Principal = "*",
+        Action = "s3:GetObject",
         Resource = "arn:aws:s3:::${aws_s3_bucket.frontend-bucket.id}/*"
       }
     ]
   })
 }
 
-# Create a basic HTML file
 resource "local_file" "index_html" {
   filename = "${path.module}/index.html"
   content  = <<-EOF
@@ -73,7 +74,6 @@ resource "local_file" "index_html" {
   EOF
 }
 
-# Upload the HTML file to S3
 resource "aws_s3_object" "index_html" {
   bucket = aws_s3_bucket.frontend-bucket.bucket
   key    = "index.html"
@@ -82,7 +82,7 @@ resource "aws_s3_object" "index_html" {
 }
 
 locals {
-  s3_bucket_endpoint = "https://${var.bucket_name}.s3.${var.region}.amazonaws.com"
+  s3_bucket_endpoint = "https://${aws_s3_bucket.frontend-bucket.bucket_regional_domain_name}"
 }
 
 resource "aws_acm_certificate" "cert" {
@@ -120,11 +120,7 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 
 resource "time_sleep" "wait_for_validation" {
   depends_on = [aws_acm_certificate_validation.cert_validation]
-  create_duration = "5m"  # Waits for 5 minutes to allow DNS propagation and validation
-}
-
-locals {
-  s3_origin_id = "S3-frontend-origin"
+  create_duration = "5m"
 }
 
 resource "aws_cloudfront_distribution" "frontend_distribution" {
@@ -132,7 +128,7 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
 
   origin {
     domain_name = aws_s3_bucket.frontend-bucket.bucket_regional_domain_name
-    origin_id   = local.s3_origin_id
+    origin_id   = "S3-frontend-origin"
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
@@ -148,7 +144,7 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = local.s3_origin_id
+    target_origin_id = "S3-frontend-origin"
 
     forwarded_values {
       query_string = false
@@ -157,7 +153,7 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
       }
     }
 
-    viewer_protocol_policy = "redirect-to-https"  # Ensure this matches your SSL configuration
+    viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
