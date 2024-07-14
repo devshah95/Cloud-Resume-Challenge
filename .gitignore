@@ -11,3 +11,4 @@ create_resources/*_override.tf
 create_resources/*_override.tf.json
 create_resources/*.tfplan
 
+create_resources/variables.tf 
