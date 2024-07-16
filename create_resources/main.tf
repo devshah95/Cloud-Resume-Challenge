@@ -219,7 +219,7 @@ resource "aws_dynamodb_table" "WebsiteVisits" {
 
 resource "null_resource" "insert_data" {
   provisioner "local-exec" {
-    command = "AWS_PROFILE=CloudResumeRole aws dynamodb put-item --region us-east-1 --table-name ${aws_dynamodb_table.WebsiteVisits.name} --item '{\"CounterID\": {\"S\": \"visitor_count\"}, \"count\": {\"N\": \"0\"}}'"
+    command = "AWS_PROFILE=cloudresumerole aws dynamodb put-item --region us-east-1 --table-name ${aws_dynamodb_table.WebsiteVisits.name} --item '{\"CounterID\": {\"S\": \"visitor_count\"}, \"count\": {\"N\": \"0\"}}'"
   }
   depends_on = [aws_dynamodb_table.WebsiteVisits]
 }
