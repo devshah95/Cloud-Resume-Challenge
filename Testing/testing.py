@@ -5,7 +5,7 @@ import requests
 def run(playwright):
     browser = playwright.chromium.launch()
     page = browser.new_page()
-    page.goto("http://devarsh.net")
+    page.goto("http://devarshshah.me")
     page.wait_for_timeout(2000)
     initial_count_string = page.text_content("#visitor-count")
     initial_count = int("".join([char for char in initial_count_string if char.isdigit()]))
@@ -21,7 +21,7 @@ def run(playwright):
 
 # Testing API
 def run(playwright):
-    api_url = "https://j04wu95ju9.execute-api.us-east-1.amazonaws.com/dev/counter"
+    api_url = "https://gk9pw62oh1.execute-api.us-east-1.amazonaws.com/prod/counter"
     response = requests.post(api_url)
     assert response.status_code == 200
 
