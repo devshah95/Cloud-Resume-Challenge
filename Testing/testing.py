@@ -5,7 +5,7 @@ import requests
 def run(playwright):
     browser = playwright.chromium.launch()
     page = browser.new_page()
-    page.goto("http://devarshshah.me")
+    page.goto("http://devarsh.net")
     page.wait_for_timeout(2000)
     initial_count_string = page.text_content("#visitor-count")
     initial_count = int("".join([char for char in initial_count_string if char.isdigit()]))
