@@ -1,0 +1,27 @@
+name: Test and Deploy
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::891376956407:role/CloudResumeRole
+          aws-region: ${{ vars.REGION }}
+      - name: Sync S3 Bucket
+        run: aws s3 sync ./frontend s3://cloudresumechallenge-devarshtest --delete
