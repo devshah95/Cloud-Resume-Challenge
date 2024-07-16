@@ -301,7 +301,7 @@ resource "aws_api_gateway_integration_response" "post_counter_200" {
   status_code = aws_api_gateway_method_response.post_counter_200.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin" = "'${var.domain_name}'"
+    "method.response.header.Access-Control-Allow-Origin" = "'https://${var.domain_name}'"
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type'"
     "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
   }
