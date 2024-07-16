@@ -240,7 +240,6 @@ resource "aws_lambda_function" "increment_counter" {
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 }
 
-
 resource "aws_api_gateway_rest_api" "visitor_counter_api" {
   name        = "VisitorCounterAPI"
   description = "API for incrementing visitor counter"
@@ -264,7 +263,7 @@ resource "aws_api_gateway_integration" "post_counter_lambda" {
   resource_id             = aws_api_gateway_resource.counter.id
   http_method             = aws_api_gateway_method.post_counter.http_method
   integration_http_method = "POST"
-  type                    = "AWS" 
+  type                    = "AWS"
   uri                     = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${aws_lambda_function.increment_counter.arn}/invocations"
 
   request_templates = {
@@ -294,6 +293,8 @@ resource "aws_api_gateway_method_response" "post_counter_200" {
 }
 
 resource "aws_api_gateway_integration_response" "post_counter_200" {
+  depends_on = [aws_api_gateway_integration.post_counter_lambda]
+
   rest_api_id = aws_api_gateway_rest_api.visitor_counter_api.id
   resource_id = aws_api_gateway_resource.counter.id
   http_method = aws_api_gateway_method.post_counter.http_method
@@ -337,6 +338,8 @@ resource "aws_api_gateway_method_response" "options_counter_200" {
 }
 
 resource "aws_api_gateway_integration_response" "options_counter_200" {
+  depends_on = [aws_api_gateway_integration.options_counter]
+
   rest_api_id = aws_api_gateway_rest_api.visitor_counter_api.id
   resource_id = aws_api_gateway_resource.counter.id
   http_method = aws_api_gateway_method.options_counter.http_method
