@@ -42,4 +42,4 @@ jobs:
           aws-region: ${{ vars.REGION }}
 
       - name: Sync S3 Bucket
-        run: aws s3 sync ./frontend s3://cloudresumechallenge-devarshtest --delete
+        run: aws s3 sync ./frontend s3://devarsh-cloud-resume-challenge --delete
