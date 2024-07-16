@@ -1,0 +1,2 @@
+This repository showcases my implementation of the Cloud Resume Challenge using Amazon Web Services (AWS). It includes a resume website written in HTML and CSS, deployed on Amazon S3 with HTTPS secured by CloudFront. A custom domain name points to the site, which features a JavaScript visitor counter connected to a DynamoDB database through an API built with API Gateway and Lambda functions in Python. The project employs infrastructure as code with Terraform, continuous integration and deployment with GitHub Actions.
+
