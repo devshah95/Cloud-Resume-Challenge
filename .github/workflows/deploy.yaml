@@ -43,3 +43,6 @@ jobs:
 
       - name: Sync S3 Bucket
         run: aws s3 sync ./frontend s3://devarsh-cloud-resume-challenge --delete
+
+      - name: Invalidate Cache on CloudFront
+        run: aws cloudfront create-invalidation --distribution-id E1Q9Z3C7RDS1CU --paths "/*"
