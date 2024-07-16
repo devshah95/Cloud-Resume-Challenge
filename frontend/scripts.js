@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // API URL
   const apiUrl =
-    "https://j04wu95ju9.execute-api.us-east-1.amazonaws.com/dev/counter"
+    "https://gk9pw62oh1.execute-api.us-east-1.amazonaws.com/prod/counter"
 
   function updateVisitorCounter() {
     fetch(apiUrl, {
