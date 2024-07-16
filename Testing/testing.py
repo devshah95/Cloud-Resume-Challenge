@@ -21,7 +21,7 @@ def run(playwright):
 
 # Testing API
 def run(playwright):
-    api_url = "https://gk9pw62oh1.execute-api.us-east-1.amazonaws.com/prod/counter"
+    api_url = "https://k4eh22i3dj.execute-api.us-east-1.amazonaws.com/prod/counter"
     response = requests.post(api_url)
     assert response.status_code == 200
 
