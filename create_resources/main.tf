@@ -1,5 +1,5 @@
 provider "aws" {
-  profile = "CloudResumeRole"
+  profile = "cloudresumerole"
   region  = var.region
 }
 
@@ -84,7 +84,6 @@ resource "aws_s3_object" "index_html" {
 locals {
   s3_bucket_website_endpoint = "${aws_s3_bucket.frontend-bucket.bucket}.s3-website-${var.region}.amazonaws.com" 
 }
-
 
 resource "aws_acm_certificate" "cert" {
   domain_name       = var.domain_name
