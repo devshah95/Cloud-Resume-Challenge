@@ -31,9 +31,6 @@ jobs:
       - name: Install Playwright Browsers
         run: python -m playwright install
 
-      - name: Run Test
-        run: python ./Testing/testing.py
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -43,3 +40,6 @@ jobs:
 
       - name: Sync S3 Bucket
         run: aws s3 sync ./frontend s3://cloudresumechallenge-devarshtest --delete
+
+      - name: Run Test
+        run: python ./Testing/testing.py
